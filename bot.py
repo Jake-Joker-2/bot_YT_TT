@@ -11,7 +11,7 @@ logging.basicConfig(
 )
 
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+BOT_TOKEN = '8786785691:AAFQ1ATab63nJKcXxyPyIKuFJy7Hw119WV0'
 
 if not BOT_TOKEN:
     raise ValueError("BOT_TOKEN не найден! Добавь его в переменные окружения Railway.")
