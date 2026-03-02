@@ -18,7 +18,7 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "👋 Привет! Отправь ссылку на YouTube или TikTok.\n"
+        "👋 Привет! Отправь ссылку на TikTok, YouTube нету так как он пидорас\n"
         "⚠️ Лимит: видео до 50 МБ"
     )
 
