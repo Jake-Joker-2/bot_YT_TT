@@ -31,11 +31,13 @@ def download_video(url: str) -> str:
         'no_warnings': True,
         'extractor_args': {
             'youtube': {
-                'player_client': ['android'],
+                'player_client': ['web'],
+                'player_skip': ['webpage', 'configs', 'js'],
+                'po_token': ['JgZ51IXv4NGXqs19/AHwYhiZPuoEDJyK6R'],
             }
         },
         'headers': {
-            'User-Agent': 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36'
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
         }
     }
     
