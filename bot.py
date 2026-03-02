@@ -10,12 +10,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-
-BOT_TOKEN = '8786785691:AAFQ1ATab63nJKcXxyPyIKuFJy7Hw119WV0'
-
-if not BOT_TOKEN:
-    raise ValueError("BOT_TOKEN не найден! Добавь его в переменные окружения Railway.")
-
+BOT_TOKEN = "ВСТАВЬ_СВОЙ_ТОКЕН_ЗДЕСЬ"
 
 DOWNLOAD_DIR = "/tmp/downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
@@ -31,24 +26,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def download_video(url: str) -> str:
     ydl_opts = {
         'format': 'best[filesize<50M]',
-        'outtmpl': '/tmp/%(title)s.%(ext)s',
+        'outtmpl': f'{DOWNLOAD_DIR}/%(title)s.%(ext)s',
         'quiet': True,
         'no_warnings': True,
-        # Обход защиты YouTube
         'extractor_args': {
             'youtube': {
-                'player_client': ['android'],  # Использовать мобильный клиент
-                'player_skip': ['webpage', 'configs', 'js'],  # Пропустить части проверки
+                'player_client': ['android'],
             }
         },
         'headers': {
-            'User-Agent': 'Mozilla/5.0 (Linux; Android 10; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Mobile Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36'
         }
     }
-    
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=True)
-        return ydl.prepare_filename(info)
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
@@ -59,38 +48,42 @@ async def handle_url(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = update.message.text.strip()
     
     if not url.startswith(('http://', 'https://')):
-        await update.message.reply_text("❌ Отправь корректную ссылку")
+        await update.message.reply_text("❌ Это не ссылка. Отправь URL")
         return
     
     await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="upload_video")
-    status = await update.message.reply_text("⏳ Скачиваю...")
+    status_message = await update.message.reply_text("⏳ Скачиваю видео...")
     
     try:
         loop = asyncio.get_event_loop()
-        filepath = await loop.run_in_executor(None, download_video_sync, url)
+        filepath = await loop.run_in_executor(None, download_video, url)
         
         if not os.path.exists(filepath):
-            await status.edit_text("❌ Файл не найден")
+            await status_message.edit_text("❌ Файл не найден после скачивания")
             return
         
-        with open(filepath, 'rb') as video:
-            await update.message.reply_video(video=video, caption="✅ Готово!")
+        with open(filepath, 'rb') as video_file:
+            await update.message.reply_video(
+                video=video_file,
+                caption="✅ Готово!"
+            )
         
         os.remove(filepath)
-        await status.delete()
+        await status_message.delete()
         
     except Exception as e:
         logging.error(f"Ошибка: {e}")
-        await status.edit_text(f"❌ Ошибка:\n<code>{str(e)}</code>", parse_mode='HTML')
+        await status_message.edit_text(f"❌ Ошибка:\n<code>{str(e)}</code>", parse_mode='HTML')
 
 
 def main():
-    app = Application.builder().token(BOT_TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_url))
+    application = Application.builder().token(BOT_TOKEN).build()
+    
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_url))
     
     print("🚀 Бот запущен!")
-    app.run_polling()
+    application.run_polling()
 
 
 if __name__ == "__main__":
