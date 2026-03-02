@@ -28,13 +28,27 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-def download_video_sync(url: str) -> str:
+def download_video(url: str) -> str:
     ydl_opts = {
         'format': 'best[filesize<50M]',
-        'outtmpl': f'{DOWNLOAD_DIR}/%(title)s.%(ext)s',
+        'outtmpl': '/tmp/%(title)s.%(ext)s',
         'quiet': True,
         'no_warnings': True,
+        # Обход защиты YouTube
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android'],  # Использовать мобильный клиент
+                'player_skip': ['webpage', 'configs', 'js'],  # Пропустить части проверки
+            }
+        },
+        'headers': {
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 10; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Mobile Safari/537.36'
+        }
     }
+    
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        return ydl.prepare_filename(info)
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
