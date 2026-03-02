@@ -10,7 +10,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-BOT_TOKEN = "ВСТАВЬ_СВОЙ_ТОКЕН_ЗДЕСЬ"
+BOT_TOKEN = "8786785691:AAFQ1ATab63nJKcXxyPyIKuFJy7Hw119WV0"
 
 DOWNLOAD_DIR = "/tmp/downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
